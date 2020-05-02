@@ -32,4 +32,9 @@ public class NewZealandController {
         return 0;
     }
 
+    @RequestMapping("/dashboard")
+    public String getDashboardData() {
+        return "";
+    }
+
 }
