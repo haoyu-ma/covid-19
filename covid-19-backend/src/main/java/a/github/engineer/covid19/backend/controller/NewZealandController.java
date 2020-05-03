@@ -1,7 +1,11 @@
 package a.github.engineer.covid19.backend.controller;
 
+import a.github.engineer.covid19.backend.CommonUtils;
+import a.github.engineer.covid19.backend.entities.Dashboard;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/nz")
@@ -33,8 +37,9 @@ public class NewZealandController {
     }
 
     @RequestMapping("/dashboard")
-    public String getDashboardData() {
-        return "";
+    public Dashboard getDashboardData() {
+        String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("data/dashboard.json")).getPath();
+        return Dashboard.generateDashboard(CommonUtils.readJsonFile(path));
     }
 
 }
