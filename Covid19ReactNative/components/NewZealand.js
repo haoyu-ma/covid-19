@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import MapView, {
   Callout,
   Marker,
@@ -7,6 +7,9 @@ import MapView, {
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
 import {Flex, WingBlank} from '@ant-design/react-native';
+import {LineChart, Grid} from 'react-native-svg-charts';
+import Card from '@ant-design/react-native/es/card';
+import Icon from '@ant-design/react-native/es/icon';
 
 export default class NewZealand extends React.Component<any, any> {
   constructor(props) {
@@ -18,23 +21,61 @@ export default class NewZealand extends React.Component<any, any> {
 
       dashboardData: {
         activeCases: '0',
-        totalCases: '0',
+        combinedCases: '0',
         recoveredCases: '0',
         deaths: '0',
         newActiveCases: '0',
-        newTotalCases: '0',
-        newRecoveredCases: '0',
-        newDeaths: '0',
+        combinedCasesNew: '0',
+        recoveredCasesNew: '0',
+        deathsNew: '0',
       },
+
+      summaryData: {
+        combined: [],
+        recovered: [],
+        deaths: [],
+        combinedTotal: [],
+        recoveredTotal: [],
+        deathsTotal: [],
+      },
+
+      districtHealthBoardData: [
+        {
+          name: 'DHB Name',
+          totalCases: 0,
+          newCases: 0,
+          active: 0,
+          recovered: 0,
+          deaths: 0,
+          inHospital: 0,
+          activeTrend: [],
+        },
+      ],
+
+      districtHealthBoardDataMap: new Map(),
     };
   }
 
   componentDidMount() {
-    fetch(serverIp + '/covid-19/nz/dashboard')
+    fetch(serverIp + '/covid-19/nz/main')
       .then(response => response.json())
       .then(json => {
+        let dhbMap = new Map();
+        json.locations.map(function(item) {
+          dhbMap.set(item.name, item);
+        });
         this.setState({
-          dashboardData: json,
+          dashboardData: json.summaryData,
+          summaryData: {
+            combined: json.summary.map(item => item.combined),
+            recovered: json.summary.map(item => item.recovered),
+            deaths: json.summary.map(item => item.deaths),
+            combinedTotal: json.summary.map(item => item.combinedTotal),
+            recoveredTotal: json.summary.map(item => item.recoveredTotal),
+            deathsTotal: json.summary.map(item => item.deathsTotal),
+          },
+          districtHealthBoardData: json.locations,
+          districtHealthBoardDataMap: dhbMap,
         });
       })
       .catch(error => console.error(error))
@@ -44,6 +85,13 @@ export default class NewZealand extends React.Component<any, any> {
   }
 
   render() {
+    const {
+      dashboardData,
+      summaryData,
+      districtHealthBoardData,
+      districtHealthBoardDataMap,
+    } = this.state;
+
     return (
       <ScrollView
         style={{flex: 1}}
@@ -72,7 +120,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -35.585851, longitude: 173.869628}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Northland') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Northland</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Northland').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Northland').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Northland').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Northland').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Northland').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Northland').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -86,7 +166,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -36.544949, longitude: 174.572753}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Waitemata') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Waitemata</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Waitemata').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -115,7 +227,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -36.887309, longitude: 174.777374}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Auckland') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Auckland</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Auckland').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -129,7 +273,58 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -37.230328, longitude: 174.924316}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Counties Manukau') !==
+                undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Counties Manukau</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .totalCases
+                      }
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .newCases
+                      }
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .active
+                      }
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .recovered
+                      }
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .deaths
+                      }
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Counties Manukau')
+                          .inHospital
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -143,7 +338,38 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -38.186386, longitude: 175.275878}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Waikato') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Waikato</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waikato').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waikato').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waikato').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Waikato').recovered}
+                    </Text>
+                    <Text>
+                      Deaths: {districtHealthBoardDataMap.get('Waikato').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Waikato').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -157,7 +383,38 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -38.685509, longitude: 176.154785}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Lakes') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Lakes</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Lakes').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Lakes').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Lakes').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Lakes').recovered}
+                    </Text>
+                    <Text>
+                      Deaths: {districtHealthBoardDataMap.get('Lakes').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Lakes').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -171,7 +428,49 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -38.23818, longitude: 176.9458}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Bay of Plenty') !==
+                undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Bay of Plenty</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Bay of Plenty')
+                          .totalCases
+                      }
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Bay of Plenty').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Bay of Plenty').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Bay of Plenty')
+                          .recovered
+                      }
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Bay of Plenty').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Bay of Plenty')
+                          .inHospital
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -185,7 +484,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -38.393338, longitude: 177.912597}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Tairāwhiti') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Tairāwhiti</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Tairāwhiti').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -199,7 +530,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -39.283293, longitude: 174.418945}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Taranaki') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Taranaki</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Taranaki').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -213,7 +576,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -39.50404, longitude: 176.638183}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get("Hawke's Bay") !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Hawke's Bay</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get("Hawke's Bay").inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -227,7 +622,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -39.639537, longitude: 175.517578}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Whanganui') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Whanganui</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Whanganui').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -241,7 +668,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -40.329795, longitude: 175.792236}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('MidCentral') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>MidCentral</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('MidCentral').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -255,7 +714,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -41.178653, longitude: 175.045166}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Hutt Valley') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Hutt Valley</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Hutt Valley').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -269,7 +760,58 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -41.10419, longitude: 174.902343}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Capital and Coast') !==
+                undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Capital and Coast</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .totalCases
+                      }
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .newCases
+                      }
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .active
+                      }
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .recovered
+                      }
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .deaths
+                      }
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Capital and Coast')
+                          .inHospital
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -283,7 +825,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -41.153842, longitude: 175.638427}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Wairarapa') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Wairarapa</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Wairarapa').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -297,7 +871,58 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -41.705728, longitude: 173.144531}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Nelson Marlborough') !==
+                undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Nelson Marlborough</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .totalCases
+                      }
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .newCases
+                      }
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .active
+                      }
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .recovered
+                      }
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .deaths
+                      }
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {
+                        districtHealthBoardDataMap.get('Nelson Marlborough')
+                          .inHospital
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -311,7 +936,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -43.189157, longitude: 170.496826}}>
               <Callout>
-                <Text>This is West Coast</Text>
+                {districtHealthBoardDataMap.get('West Coast') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>West Coast</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('West Coast').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -325,7 +982,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -43.317184, longitude: 172.045898}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Canterbury') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Canterbury</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Canterbury').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -339,7 +1028,58 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -44.142797, longitude: 170.771484}}>
               <Callout>
-                <Text>This is South Canterbury</Text>
+                {districtHealthBoardDataMap.get('South Canterbury') !==
+                undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>South Canterbury</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .totalCases
+                      }
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .newCases
+                      }
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .active
+                      }
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .recovered
+                      }
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .deaths
+                      }
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {
+                        districtHealthBoardDataMap.get('South Canterbury')
+                          .inHospital
+                      }
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
 
@@ -358,7 +1098,39 @@ export default class NewZealand extends React.Component<any, any> {
               calloutAnchor={{x: 0.5, y: 1}}
               coordinate={{latitude: -45.437008, longitude: 168.815917}}>
               <Callout>
-                <Text>This is Southern</Text>
+                {districtHealthBoardDataMap.get('Southern') !== undefined ? (
+                  <View>
+                    <Text style={{fontWeight: 'bold'}}>Southern</Text>
+                    <Text>
+                      Total Cases:{' '}
+                      {districtHealthBoardDataMap.get('Southern').totalCases}
+                    </Text>
+                    <Text>
+                      New Cases:{' '}
+                      {districtHealthBoardDataMap.get('Southern').newCases}
+                    </Text>
+                    <Text>
+                      Active Cases:{' '}
+                      {districtHealthBoardDataMap.get('Southern').active}
+                    </Text>
+                    <Text>
+                      Recovered Cases:{' '}
+                      {districtHealthBoardDataMap.get('Southern').recovered}
+                    </Text>
+                    <Text>
+                      Deaths:{' '}
+                      {districtHealthBoardDataMap.get('Southern').deaths}
+                    </Text>
+                    <Text>
+                      In Hospital:{' '}
+                      {districtHealthBoardDataMap.get('Southern').inHospital}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                )}
               </Callout>
             </Marker>
           </MapView>
@@ -371,13 +1143,11 @@ export default class NewZealand extends React.Component<any, any> {
                   <WingBlank style={{marginBottom: 5}}>
                     <Flex direction="column">
                       <Flex.Item>
-                        <Text style={dashboardStyles.firstLine}>
-                          New +{this.state.dashboardData.newActiveCases}
-                        </Text>
+                        <Text style={dashboardStyles.firstLine} />
                       </Flex.Item>
                       <Flex.Item>
                         <Text style={dashboardStyles.secondLine}>
-                          {this.state.dashboardData.activeCases}
+                          {dashboardData.activeCases}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
@@ -393,12 +1163,15 @@ export default class NewZealand extends React.Component<any, any> {
                     <Flex direction="column">
                       <Flex.Item>
                         <Text style={dashboardStyles.firstLine}>
-                          New +{this.state.dashboardData.newTotalCases}
+                          New{' '}
+                          {dashboardData.combinedCasesNew >= 0
+                            ? '+' + dashboardData.combinedCasesNew
+                            : dashboardData.combinedCasesNew}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
                         <Text style={dashboardStyles.secondLine}>
-                          {this.state.dashboardData.totalCases}
+                          {dashboardData.combinedCases}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
@@ -414,12 +1187,15 @@ export default class NewZealand extends React.Component<any, any> {
                     <Flex direction="column">
                       <Flex.Item>
                         <Text style={dashboardStyles.firstLine}>
-                          New +{this.state.dashboardData.newDeaths}
+                          New{' '}
+                          {dashboardData.deathsNew >= 0
+                            ? '+' + dashboardData.deathsNew
+                            : dashboardData.deathsNew}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
                         <Text style={dashboardStyles.secondLine}>
-                          {this.state.dashboardData.deaths}
+                          {dashboardData.deaths}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
@@ -435,12 +1211,15 @@ export default class NewZealand extends React.Component<any, any> {
                     <Flex direction="column">
                       <Flex.Item>
                         <Text style={dashboardStyles.firstLine}>
-                          New +{this.state.dashboardData.newRecoveredCases}
+                          New{' '}
+                          {dashboardData.recoveredCasesNew >= 0
+                            ? '+' + dashboardData.recoveredCasesNew
+                            : dashboardData.recoveredCasesNew}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
                         <Text style={dashboardStyles.secondLine}>
-                          {this.state.dashboardData.recoveredCases}
+                          {dashboardData.recoveredCases}
                         </Text>
                       </Flex.Item>
                       <Flex.Item>
@@ -453,8 +1232,117 @@ export default class NewZealand extends React.Component<any, any> {
             </Flex>
           </WingBlank>
         </View>
+        <View style={summaryStyles.container}>
+          <Text style={{fontWeight: 'bold', fontSize: 16, marginLeft: 145}}>
+            Daily Cases
+          </Text>
+          <LineChart
+            style={{flex: 1}}
+            data={[
+              {
+                data: summaryData.combinedTotal,
+                svg: {stroke: 'orange'},
+              },
+              {
+                data: summaryData.recoveredTotal,
+                svg: {stroke: 'green'},
+              },
+              {
+                data: summaryData.deathsTotal,
+                svg: {stroke: 'black'},
+              },
+            ]}
+            contentInset={{top: 10, bottom: 10}}>
+            <Grid />
+          </LineChart>
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 16,
+              marginLeft: 145,
+              marginTop: 10,
+            }}>
+            Total Cases
+          </Text>
+          <LineChart
+            style={{flex: 1}}
+            data={[
+              {
+                data: summaryData.combined,
+                svg: {stroke: 'orange'},
+              },
+              {
+                data: summaryData.recovered,
+                svg: {stroke: 'green'},
+              },
+              {
+                data: summaryData.deaths,
+                svg: {stroke: 'black'},
+              },
+            ]}
+            contentInset={{top: 10, bottom: 10}}>
+            <Grid />
+          </LineChart>
+          <Text style={{fontSize: 10, marginLeft: 90}}>
+            <Icon name="line" size="xs" color="orange" />
+            Confirmed&nbsp;&nbsp;
+            <Icon name="line" size="xs" color="green" />
+            Recovered&nbsp;&nbsp;
+            <Icon name="line" size="xs" color="black" />
+            Deaths
+          </Text>
+        </View>
         <View>
-          <Text>Chart</Text>
+          {districtHealthBoardData.map((item, index) => {
+            return (
+              <WingBlank size="lg" key={index} style={{marginBottom: 5}}>
+                <Card>
+                  <Card.Body>
+                    <View style={{height: 20}}>
+                      <Text style={{marginLeft: 18, fontWeight: 'bold'}}>
+                        {item.name}
+                      </Text>
+                    </View>
+                    <View style={{height: 50}}>
+                      <Flex direction={'row'}>
+                        <Flex.Item>
+                          <Flex
+                            direction={'column'}
+                            justify={'start'}
+                            style={{marginTop: 5}}>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
+                              <Icon name="fire" size="md" color="orange" />
+                              {item.active}
+                              <Icon name="bug" size="md" color="orange" />
+                              {item.totalCases}
+                              <Icon name="plus-circle" size="md" color="blue" />
+                              {item.newCases}
+                            </Text>
+                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
+                              <Icon name="smile" size="md" color="green" />
+                              {item.recovered}
+                              <Icon name="meh" size="md" color="red" />
+                              {item.inHospital}
+                              <Icon name="frown" size="md" color="black" />
+                              {item.deaths}
+                            </Text>
+                          </Flex>
+                        </Flex.Item>
+                        <Flex.Item>
+                          <LineChart
+                            style={{flex: 1}}
+                            data={item.activeTrend}
+                            contentInset={{top: 10, bottom: 10}}
+                            svg={{stroke: 'orange'}}
+                          />
+                        </Flex.Item>
+                      </Flex>
+                    </View>
+                  </Card.Body>
+                </Card>
+              </WingBlank>
+            );
+          })}
         </View>
       </ScrollView>
     );
@@ -506,6 +1394,19 @@ const dashboardStyles = StyleSheet.create({
   },
   thirdLine: {
     fontSize: 10,
+  },
+});
+
+const summaryStyles = StyleSheet.create({
+  container: {
+    height: 360,
+    padding: 10,
+    flexDirection: 'column',
+    borderWidth: 1,
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 0,
+    marginBottom: 10,
   },
 });
 
