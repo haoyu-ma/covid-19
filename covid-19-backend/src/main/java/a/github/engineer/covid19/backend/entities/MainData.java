@@ -8,15 +8,18 @@ public class MainData {
     private SummaryData summaryData;
     private List<Summary> summary;
     private Map<String, List<HistoryDetail>> history;
+    private Map<String, List<RegionAgesGenders>> regionAgesGenders;
 
     public MainData() {
     }
 
-    public MainData(List<Location> locations, SummaryData summaryData, List<Summary> summary, Map<String, List<HistoryDetail>> history) {
+    public MainData(List<Location> locations, SummaryData summaryData, List<Summary> summary,
+                    Map<String, List<HistoryDetail>> history, Map<String, List<RegionAgesGenders>> regionAgesGenders) {
         this.locations = locations;
         this.summaryData = summaryData;
         this.summary = summary;
         this.history = history;
+        this.regionAgesGenders = regionAgesGenders;
     }
 
     public List<Location> getLocations() {
@@ -49,5 +52,13 @@ public class MainData {
 
     public void setHistory(Map<String, List<HistoryDetail>> history) {
         this.history = history;
+    }
+
+    public Map<String, List<RegionAgesGenders>> getRegionAgesGenders() {
+        return regionAgesGenders;
+    }
+
+    public void setRegionAgesGenders(Map<String, List<RegionAgesGenders>> regionAgesGenders) {
+        this.regionAgesGenders = regionAgesGenders;
     }
 }

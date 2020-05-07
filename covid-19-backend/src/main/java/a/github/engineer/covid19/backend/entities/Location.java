@@ -11,6 +11,11 @@ public class Location {
     private int deaths;
     private int inHospital;
     private List<Integer> activeTrend;
+    private List<Integer> totalTrend;
+    private List<Integer> recoveredTrend;
+    private List<Integer> deathsTrend;
+    private List<Integer> newTrend;
+    private List<RegionAgesGenders> agesGenders;
 
     public Location() {
     }
@@ -88,5 +93,45 @@ public class Location {
 
     public void setActiveTrend(List<Integer> activeTrend) {
         this.activeTrend = activeTrend;
+    }
+
+    public List<Integer> getNewTrend() {
+        return newTrend;
+    }
+
+    public void setNewTrend(List<Integer> newTrend) {
+        this.newTrend = newTrend;
+    }
+
+    public List<Integer> getTotalTrend() {
+        return totalTrend;
+    }
+
+    public void setTotalTrend(List<Integer> totalTrend) {
+        this.totalTrend = totalTrend;
+    }
+
+    public List<Integer> getRecoveredTrend() {
+        return recoveredTrend;
+    }
+
+    public void setRecoveredTrend(List<Integer> recoveredTrend) {
+        this.recoveredTrend = recoveredTrend;
+    }
+
+    public List<Integer> getDeathsTrend() {
+        return deathsTrend;
+    }
+
+    public void setDeathsTrend(List<Integer> deathsTrend) {
+        this.deathsTrend = deathsTrend;
+    }
+
+    public List<RegionAgesGenders> getAgesGenders() {
+        return agesGenders;
+    }
+
+    public void setAgesGenders(List<RegionAgesGenders> agesGenders) {
+        this.agesGenders = agesGenders;
     }
 }

@@ -1,23 +1,32 @@
 import React from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, ScrollView, StyleSheet, Text, View} from 'react-native';
 import MapView, {
   Callout,
   Marker,
   Polygon,
   PROVIDER_GOOGLE,
 } from 'react-native-maps';
-import {Flex, WingBlank} from '@ant-design/react-native';
-import {LineChart, Grid} from 'react-native-svg-charts';
+import {Button, Flex, WingBlank} from '@ant-design/react-native';
+import {LineChart, Grid, StackedBarChart} from 'react-native-svg-charts';
 import Card from '@ant-design/react-native/es/card';
 import Icon from '@ant-design/react-native/es/icon';
+import Modal from 'react-native-modal';
 
 export default class NewZealand extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
+    this.onModalClose = () => {
+      this.setState({
+        isShowModal: false,
+      });
+    };
+
     this.state = {
       data: '',
       isLoading: true,
+      isShowModal: false,
+      modalDetail: {},
 
       dashboardData: {
         activeCases: '0',
@@ -49,6 +58,11 @@ export default class NewZealand extends React.Component<any, any> {
           deaths: 0,
           inHospital: 0,
           activeTrend: [],
+          newTrend: [],
+          totalTrend: [],
+          deathsTrend: [],
+          recoveredTrend: [],
+          agesGenders: [],
         },
       ],
 
@@ -108,8 +122,7 @@ export default class NewZealand extends React.Component<any, any> {
               latitudeDelta: 14,
               longitudeDelta: 14,
             }}
-            mapType={'none'}
-            zoomEnabled={false}>
+            showsUserLocation={true}>
             <Polygon
               fillColor={'#fff'}
               coordinates={northlandGeoCoordinates}
@@ -1233,7 +1246,7 @@ export default class NewZealand extends React.Component<any, any> {
           </WingBlank>
         </View>
         <View style={summaryStyles.container}>
-          <Text style={{fontWeight: 'bold', fontSize: 16, marginLeft: 145}}>
+          <Text style={{fontWeight: 'bold', fontSize: 16, textAlign: 'center'}}>
             Daily Cases
           </Text>
           <LineChart
@@ -1259,8 +1272,8 @@ export default class NewZealand extends React.Component<any, any> {
             style={{
               fontWeight: 'bold',
               fontSize: 16,
-              marginLeft: 145,
               marginTop: 10,
+              textAlign: 'center',
             }}>
             Total Cases
           </Text>
@@ -1283,66 +1296,247 @@ export default class NewZealand extends React.Component<any, any> {
             contentInset={{top: 10, bottom: 10}}>
             <Grid />
           </LineChart>
-          <Text style={{fontSize: 10, marginLeft: 90}}>
-            <Icon name="line" size="xs" color="orange" />
+          <Text style={{fontSize: 10, textAlign: 'center'}}>
+            <Icon name="minus-square" size="xs" color="orange" />
             Confirmed&nbsp;&nbsp;
-            <Icon name="line" size="xs" color="green" />
+            <Icon name="minus-square" size="xs" color="green" />
             Recovered&nbsp;&nbsp;
-            <Icon name="line" size="xs" color="black" />
+            <Icon name="minus-square" size="xs" color="black" />
             Deaths
           </Text>
         </View>
         <View>
           {districtHealthBoardData.map((item, index) => {
             return (
-              <WingBlank size="lg" key={index} style={{marginBottom: 5}}>
-                <Card>
-                  <Card.Body>
-                    <View style={{height: 20}}>
-                      <Text style={{marginLeft: 18, fontWeight: 'bold'}}>
-                        {item.name}
-                      </Text>
-                    </View>
-                    <View style={{height: 50}}>
-                      <Flex direction={'row'}>
-                        <Flex.Item>
-                          <Flex
-                            direction={'column'}
-                            justify={'start'}
-                            style={{marginTop: 5}}>
-                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-                              <Icon name="fire" size="md" color="orange" />
-                              {item.active}
-                              <Icon name="bug" size="md" color="orange" />
-                              {item.totalCases}
-                              <Icon name="plus-circle" size="md" color="blue" />
-                              {item.newCases}
-                            </Text>
-                            <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-                              <Icon name="smile" size="md" color="green" />
-                              {item.recovered}
-                              <Icon name="meh" size="md" color="red" />
-                              {item.inHospital}
-                              <Icon name="frown" size="md" color="black" />
-                              {item.deaths}
-                            </Text>
-                          </Flex>
-                        </Flex.Item>
-                        <Flex.Item>
-                          <LineChart
-                            style={{flex: 1}}
-                            data={item.activeTrend}
-                            contentInset={{top: 10, bottom: 10}}
-                            svg={{stroke: 'orange'}}
-                          />
-                        </Flex.Item>
-                      </Flex>
-                    </View>
-                  </Card.Body>
-                </Card>
-              </WingBlank>
+              <View key={index}>
+                <WingBlank size="lg" style={{marginBottom: 5}}>
+                  <Card>
+                    <Card.Header
+                      title={item.name}
+                      extra={
+                        <Text
+                          style={{marginLeft: 150}}
+                          onPress={() => {
+                            this.setState({
+                              isShowModal: true,
+                              modalDetail: item,
+                            });
+                          }}>
+                          <Icon name="bars" size="md" color="blue" />
+                        </Text>
+                      }
+                    />
+                    <Card.Body>
+                      <View style={{height: 50}}>
+                        <Flex direction={'row'}>
+                          <Flex.Item>
+                            <Flex
+                              direction={'column'}
+                              justify={'start'}
+                              style={{marginTop: 5}}>
+                              <Text style={{fontSize: 14, fontWeight: 'bold'}}>
+                                <Icon name="fire" size="md" color="orange" />
+                                {item.active}
+                                <Icon name="bug" size="md" color="orange" />
+                                {item.totalCases}
+                                <Icon
+                                  name="plus-circle"
+                                  size="md"
+                                  color="blue"
+                                />
+                                {item.newCases}
+                              </Text>
+                              <Text style={{fontSize: 14, fontWeight: 'bold'}}>
+                                <Icon name="smile" size="md" color="green" />
+                                {item.recovered}
+                                <Icon name="meh" size="md" color="red" />
+                                {item.inHospital}
+                                <Icon name="frown" size="md" color="black" />
+                                {item.deaths}
+                              </Text>
+                            </Flex>
+                          </Flex.Item>
+                          <Flex.Item>
+                            <LineChart
+                              style={{flex: 1}}
+                              data={item.activeTrend}
+                              contentInset={{top: 10, bottom: 10}}
+                              svg={{stroke: 'orange'}}
+                            />
+                          </Flex.Item>
+                        </Flex>
+                      </View>
+                    </Card.Body>
+                  </Card>
+                </WingBlank>
+              </View>
             );
           })}
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Modal
+              isVisible={this.state.isShowModal}
+              style={{
+                justifyContent: 'flex-end',
+                margin: 0,
+              }}
+              animationIn="slideInUp"
+              animationOut="slideOutDown"
+              onBackdropPress={() => this.onModalClose()}>
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  padding: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 4,
+                  borderColor: 'rgba(0, 0, 0, 0.1)',
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    fontSize: 20,
+                  }}>
+                  {this.state.modalDetail.name}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    margin: 15,
+                    borderBottomColor: 'black',
+                    borderBottomWidth: 1,
+                    paddingBottom: 10,
+                  }}>
+                  <View style={{flexDirection: 'column'}}>
+                    <WingBlank>
+                      <Text style={dashboardStyles.firstLine} />
+                      <Text style={dashboardStyles.secondLine}>
+                        {this.state.modalDetail.active}
+                      </Text>
+                      <Text style={dashboardStyles.thirdLine}>Active</Text>
+                    </WingBlank>
+                  </View>
+                  <View style={{flexDirection: 'column'}}>
+                    <WingBlank>
+                      <Text style={dashboardStyles.firstLine}>
+                        New{' '}
+                        {this.state.modalDetail.newCases >= 0
+                          ? '+' + this.state.modalDetail.newCases
+                          : this.state.modalDetail.newCases}
+                      </Text>
+                      <Text style={dashboardStyles.secondLine}>
+                        {this.state.modalDetail.totalCases}
+                      </Text>
+                      <Text style={dashboardStyles.thirdLine}>Total</Text>
+                    </WingBlank>
+                  </View>
+                  <View style={{flexDirection: 'column'}}>
+                    <WingBlank>
+                      <Text style={dashboardStyles.firstLine} />
+                      <Text style={dashboardStyles.secondLine}>
+                        {this.state.modalDetail.recovered}
+                      </Text>
+                      <Text style={dashboardStyles.thirdLine}>Recovered</Text>
+                    </WingBlank>
+                  </View>
+                  <View style={{flexDirection: 'column'}}>
+                    <WingBlank>
+                      <Text style={dashboardStyles.firstLine} />
+                      <Text style={dashboardStyles.secondLine}>
+                        {this.state.modalDetail.deaths}
+                      </Text>
+                      <Text style={dashboardStyles.thirdLine}>Deaths</Text>
+                    </WingBlank>
+                  </View>
+                </View>
+                <View
+                  style={{
+                    margin: 15,
+                    borderBottomColor: 'black',
+                    borderBottomWidth: 1,
+                    paddingBottom: 10,
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      textAlign: 'center',
+                    }}>
+                    Daily Cases
+                  </Text>
+                  <LineChart
+                    style={{
+                      height: 150,
+                      width: Dimensions.get('window').width / 1.5,
+                    }}
+                    data={[
+                      {
+                        data: this.state.modalDetail.totalTrend,
+                        svg: {stroke: 'orange'},
+                      },
+                      {
+                        data: this.state.modalDetail.recoveredTrend,
+                        svg: {stroke: 'green'},
+                      },
+                      {
+                        data: this.state.modalDetail.deathsTrend,
+                        svg: {stroke: 'black'},
+                      },
+                    ]}
+                    contentInset={{top: 10, bottom: 10}}
+                  />
+                  <Text style={{fontSize: 10, textAlign: 'center'}}>
+                    <Icon name="minus-square" size="xs" color="orange" />
+                    Confirmed&nbsp;&nbsp;
+                    <Icon name="minus-square" size="xs" color="green" />
+                    Recovered&nbsp;&nbsp;
+                    <Icon name="minus-square" size="xs" color="black" />
+                    Deaths
+                  </Text>
+                  {this.state.modalDetail.agesGenders !== undefined ? (
+                    <StackedBarChart
+                      style={{height: 250}}
+                      colors={['#00b6ae', '#aacd6e']}
+                      contentInset={{top: 30, bottom: 30}}
+                      horizontal={true}
+                      data={this.state.modalDetail.agesGenders.map(function(
+                        item,
+                      ) {
+                        return {
+                          age: item.age,
+                          female: item.female,
+                          male: item.male,
+                        };
+                      })}
+                      keys={['female', 'male']}
+                      showGrid={false}
+                    />
+                  ) : (
+                    <Text>Loading</Text>
+                  )}
+                  <Text
+                    style={{fontSize: 10, textAlign: 'center', marginTop: -20}}>
+                    <Icon name="minus-square" size="xs" color="#00b6ae" />
+                    Female&nbsp;&nbsp;
+                    <Icon name="minus-square" size="xs" color="#aacd6e" />
+                    Male
+                  </Text>
+                </View>
+                <Button
+                  type="primary"
+                  size="large"
+                  onPress={this.onModalClose}
+                  styles={{margin: 20}}>
+                  Back to the Whole Country
+                </Button>
+              </View>
+            </Modal>
+          </View>
         </View>
       </ScrollView>
     );
@@ -1387,13 +1581,16 @@ const dashboardStyles = StyleSheet.create({
   },
   firstLine: {
     fontSize: 12,
+    textAlign: 'center',
   },
   secondLine: {
     fontSize: 20,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
   thirdLine: {
     fontSize: 10,
+    textAlign: 'center',
   },
 });
 
