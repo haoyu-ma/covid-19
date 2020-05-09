@@ -5,6 +5,7 @@ import a.github.engineer.covid19.backend.entities.HistoryDetail;
 import a.github.engineer.covid19.backend.entities.MainData;
 import a.github.engineer.covid19.backend.entities.RegionAgesGenders;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/nz")
 public class NewZealandController {
+    @CrossOrigin
     @RequestMapping("/main")
     public MainData getMainData() {
         String path = Objects.requireNonNull(this.getClass().getClassLoader().getResource("data/main.json")).getPath();
